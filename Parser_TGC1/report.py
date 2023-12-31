@@ -2,14 +2,22 @@
 import zipfile
 import pytesseract as pt
 import os
-
+from typing import Tuple
 from PIL import Image
 from pdf2image import convert_from_path
+from dotenv import load_dotenv, find_dotenv
+
+
+def get_path() -> Tuple:
+    if not find_dotenv():
+        exit("Переменные окружения не загружены т.к отсутствует файл .env")
+    load_dotenv()
+    return os.getenv("TESSERACT"), os.getenv("POPPLER_PATH")
 
 
 class Report:
     # Необходимо указать путь к программе teseract
-    tesseract = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+    tesseract = get_path()[0]  # TODO Перенести в .env
 
     accept_rep = None
     deny_rep = None
@@ -46,7 +54,7 @@ class Report:
     def get_image_from_pdf(self, input_pdf_path):
         dir_name, filename = os.path.split(input_pdf_path)
         images = convert_from_path(
-            input_pdf_path, 200, poppler_path=r"../rename_pdf/poppler-22.12.0/Library/bin"
+            input_pdf_path, 200, poppler_path=get_path()[1]
         )
         for image in images:
             image_path = os.path.join(dir_name, f"{filename[:-4]}.png")
