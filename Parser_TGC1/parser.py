@@ -23,7 +23,7 @@ class Parser:
         raise ConnectionError
 
     def get_page_wiht_nodes(self, session: requests.Session):
-        return session.get(self.url + "directorate/nodes").text
+        return session.post(self.url + "directorate/nodes", data={"onpage": 100}).text
 
     def get_nodes(self, html_page: str):
         nod = re.compile(r"(?:<tr data-id=\")(\d+)(?:\">)")
