@@ -31,12 +31,12 @@ class Parser:
         print(nodes)
         return nodes
 
-    def get_file_path(self, session: requests.Session, month: int, node: str):
+    def get_file_path(self, session: requests.Session, month: int, year: int, node: str):
         data = {
             "type": "1",  # 1-pdf, 2-cvs
             "nodes[]": node,  # внутренний номер узла
-            "from": "25." + str(month - 1) + ".2023",
-            "to": "22." + str(month) + ".2023",
+            "from": f"01.{month}.{year}",
+            "to": f"15.{month}.{year}",
             "encoding": "Windows1251"
         }
         response_file_path = session.post(self.url + "directorate/reports/downloadPost", data)
