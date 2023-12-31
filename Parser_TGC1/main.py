@@ -11,7 +11,6 @@ from parser import Parser
 from report import Report
 from sys import argv
 
-
 #  подгрузка месяца
 try:
     script, first = argv
@@ -39,36 +38,37 @@ def main():
             company = parser.check_auth(session)
         except ConnectionError():
             print("ошибка Аутентификации")
-        else:
-            nodes = parser.get_nodes(parser.get_page_wiht_nodes(session))
-            for node in nodes:
-                file_path = parser.get_file_path(session, month, str(node))
-                if file_path is not None:
-                    zipfile_path = parser.download_zipfile(session, file_path, node, month, login)
-                    if zipfile_path:
-                        report = Report(zipfile_path)
-                        if report.status is not None:
-                            pdf = report.get_file_from_zip()
-                            os.remove(report.zipfile_path)
-                            image = report.get_image_from_pdf(pdf)
-                            text = report.get_text_from_image(image)
-                            os.remove(image)
-                            dir_name = os.path.join(
-                                os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop'),   # указать папку
-                                "parser_tgc1",
-                                str(month),
-                                company
-                                )
-                            if not os.path.exists(dir_name):
-                                os.makedirs(dir_name)
-                            new_pdf = os.path.join(dir_name, report.find_name(text))
-                            if os.path.exists(new_pdf):
-                                new_pdf = f"{new_pdf[:-4]}_{str(random.randint(1000000,10000000))}.pdf"
-                            os.rename(pdf, new_pdf)
-                            os.rmdir(report.zipfile_path[:-4])
-#                            with open(f"{new_pdf[:-3]}txt", "w") as txt:
-#                                txt.write(text)
-            parser.logout(session)
+            continue
+        nodes = parser.get_nodes(parser.get_page_wiht_nodes(session))
+        for node in nodes:
+            file_path = parser.get_file_path(session, month, str(node))
+            if file_path is None:
+                continue
+            zipfile_path = parser.download_zipfile(session, file_path, node, month, login)
+            if zipfile_path is None:
+                continue
+            report = Report(zipfile_path)
+            if report.status is None:
+                continue
+            pdf = report.get_file_from_zip()
+            os.remove(report.zipfile_path)
+            image = report.get_image_from_pdf(pdf)
+            text = report.get_text_from_image(image)
+            os.remove(image)
+            dir_name = os.path.join(
+                os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop'),  # указать папку
+                "parser_tgc1",
+                str(month),
+                company
+            )
+            if not os.path.exists(dir_name):
+                os.makedirs(dir_name)
+            new_pdf = os.path.join(dir_name, report.find_name(text))
+            if os.path.exists(new_pdf):
+                new_pdf = f"{new_pdf[:-4]}_{str(random.randint(1000000, 10000000))}.pdf"
+            os.rename(pdf, new_pdf)
+            os.rmdir(report.zipfile_path[:-4])
+        parser.logout(session)
 
 
 if __name__ == '__main__':

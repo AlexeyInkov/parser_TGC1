@@ -17,7 +17,7 @@ def get_path() -> Tuple:
 
 class Report:
     # Необходимо указать путь к программе teseract
-    tesseract = get_path()[0]  # TODO Перенести в .env
+    tesseract = get_path()[0]
 
     accept_rep = None
     deny_rep = None
