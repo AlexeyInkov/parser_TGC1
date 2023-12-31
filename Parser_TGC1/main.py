@@ -13,9 +13,10 @@ from sys import argv
 
 #  подгрузка месяца
 try:
-    script, first = argv
+    script, month_str, year = argv
 except ValueError:
-    first = datetime.date.today().month
+    month_str = datetime.date.today().month
+    year = datetime.date.today().year
 
 
 def get_accounts() -> Dict:
@@ -31,7 +32,7 @@ def get_accounts() -> Dict:
 def main():
     session = requests.session()
     parser = Parser()
-    month = int(first)
+    month = int(month_str)
     for login, password in get_accounts().items():
         parser.auth(session, login, password)
         try:
@@ -41,7 +42,7 @@ def main():
             continue
         nodes = parser.get_nodes(parser.get_page_wiht_nodes(session))
         for node in nodes:
-            file_path = parser.get_file_path(session, month, str(node))
+            file_path = parser.get_file_path(session, month, year, str(node))
             if file_path is None:
                 continue
             zipfile_path = parser.download_zipfile(session, file_path, node, month, login)
