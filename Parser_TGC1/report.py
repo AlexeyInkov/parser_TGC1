@@ -92,4 +92,4 @@ class Report:
         newfilename = re.sub(r'[|*?<>:,\\\n\r\t\v]', "_", newfilename)
         newfilename = newfilename.replace(" ", "_").replace("__", "_")
         print(f'(report.find_name) новое имя: ', newfilename)
-        return newfilename
+        return newfilename, address

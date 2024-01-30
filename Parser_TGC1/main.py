@@ -11,6 +11,65 @@ from parser import Parser
 from report import Report
 from sys import argv
 
+NODES = {
+    "Ntog_9220": [
+        3083,
+        3236,
+        4198,
+        4326,
+        4909,
+        5173,
+        7142,
+        7147,
+        7152,
+        7183,
+        7867,
+        8569,
+        9150,
+        9153,
+        9157,
+        9162,
+        9559,
+        10761,
+        13169,
+        16449,
+        16574,
+        16880,
+        18220,
+        18224,
+        26762,
+        368907200,
+        374864500,
+        653668900,
+        825685500,
+        825685600,
+        1553089000,
+        1553089100,
+        1718332600,
+        1718346800,
+        1773264200,
+        1779600700,
+        1843569400,
+        2136760900,
+        7673508700,
+        7673508600
+        ], 
+    "Ing_5050": [
+        2036925500,
+        2220821800,
+        8692695266,
+        8692694297
+        ],
+    "PrJ97v_15": [
+        4342,
+        12093,
+        15828,
+        15924
+        ]
+}
+
+
+
 try:
     script, month_str, year = argv
 except ValueError:
@@ -28,6 +87,20 @@ def get_accounts() -> Dict:
     return accounts_dict
 
 
+def check_node(node):
+    with open("nodes.txt", "r", encoding="UTF-8") as file:
+        while True:  
+            line = file.readline()   
+            if line and line.split("=")[0] == node:
+                return True
+            return False
+
+
+def save_node(node, address):
+    with open("nodes.txt", "a", encoding="UTF-8") as file:
+        file.write("=".join((node, address, "\n")))
+    
+            
 def main():
     session = requests.session()
     parser = Parser()
@@ -39,10 +112,13 @@ def main():
         except ConnectionError():
             print("ошибка Аутентификации")
             continue
+        
+        # nodes = NODES[login]
         nodes = parser.get_nodes(parser.get_page_wiht_nodes(session))  # TODO добавить пагинацию
         for node in nodes:
             file_path = parser.get_file_path(session, month, year, str(node))
             if file_path is None:
+                print(f"{file_path=}")
                 continue
             zipfile_path = parser.download_zipfile(session, file_path, node, month, login)
             if zipfile_path is None:
@@ -63,7 +139,12 @@ def main():
             )
             if not os.path.exists(dir_name):
                 os.makedirs(dir_name)
-            new_pdf = os.path.join(dir_name, report.find_name(text))
+            file_name, address = report.find_name(text)
+            new_pdf = os.path.join(dir_name, file_name)
+            
+            if not check_node(node):
+                save_node(node, address)
+            
             if os.path.exists(new_pdf):
                 new_pdf = f"{new_pdf[:-4]}_{str(random.randint(1000000, 10000000))}.pdf"
             os.rename(pdf, new_pdf)
