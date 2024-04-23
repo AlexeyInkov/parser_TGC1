@@ -12,7 +12,7 @@ def get_path() -> Tuple:
     if not find_dotenv():
         exit("Переменные окружения не загружены т.к отсутствует файл .env")
     load_dotenv()
-    return os.getenv("TESSERACT"), os.getenv("POPPLER_PATH")
+    return os.getenv("TESSERACT"), os.getenv("POPPLER_PATH"), os.getenv("RESULT_PATH")
 
 
 class Report:
