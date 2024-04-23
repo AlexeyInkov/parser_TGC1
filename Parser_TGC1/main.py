@@ -8,7 +8,7 @@ import requests
 from dotenv import load_dotenv, find_dotenv
 
 from parser import Parser
-from report import Report
+from report import Report, get_path
 from sys import argv
 
 NODES = {
@@ -67,6 +67,33 @@ NODES = {
         15924
     ]
 }
+COOKIES = {
+    "TGC1_Session": "4pooo82l4cncbqna7djgidi5qv",
+    "session-cookie": "17c8f96630a1d0962dc95c5dbeb261f5210e724872387015865cc110dff5a0cc5ab259cbee7812b3a0fe3151b3f1524a",
+    "_ga": "GA1.2.1491574608.1713893877",
+    "_gid": "GA1.2.1727023081.1713893877",
+    "csrf-token-name": "x_csrftoken",
+    # "csrf-token-value": "17c9034a5a69d813e900b85e3249290746c64940b3c2e13803e6a3684cb920f281fc34b0541b9017"
+}
+HEADERS = {
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+    "Accept-Encoding": "gzip, deflate, br, zstd",
+    "Accept-Language": "ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7",
+    "Cache-Control": "no-cache",
+    "Connection": "keep-alive",
+    "Cookie": "TGC1_Session=4pooo82l4cncbqna7djgidi5qv; session-cookie=17c8f96630a1d0962dc95c5dbeb261f5210e724872387015865cc110dff5a0cc5ab259cbee7812b3a0fe3151b3f1524a; _ga=GA1.2.1491574608.1713893877; _gid=GA1.2.1727023081.1713893877; csrf-token-name=x_csrftoken",
+    "Host": "portal.tgc1.ru",
+    "Pragma": "no-cache",
+    "Sec-Fetch-Dest": "document",
+    "Sec-Fetch-Mode": "navigate",
+    "Sec-Fetch-Site": "none",
+    "Sec-Fetch-User": "?1",
+    "Upgrade-Insecure-Requests": "1",
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
+    "sec-ch-ua": '"Google Chrome";v="123", "Not:A-Brand";v="8", "Chromium";v="123"',
+    "sec-ch-ua-mobile": "?0",
+    "sec-ch-ua-platform": "Windows"
+}
 
 try:
     script, month_str, year = argv
@@ -103,6 +130,12 @@ def main():
     session = requests.session()
     parser = Parser()
     month = int(month_str)
+
+    session.cookies.clear_session_cookies()
+    session.headers.update(HEADERS)
+    cookies = requests.utils.cookiejar_from_dict(COOKIES)
+    session.cookies.update(cookies)
+
     for login, password in get_accounts().items():
         parser.auth(session, login, password)
         try:
@@ -112,7 +145,7 @@ def main():
             continue
 
         # nodes = NODES[login]
-        nodes = parser.get_nodes(parser.get_page_wiht_nodes(session))  # TODO добавить пагинацию
+        nodes = parser.get_nodes(parser.get_page_with_nodes(session))  # TODO добавить пагинацию
         for node in nodes:
             file_path = parser.get_file_path(session, month, year, str(node))
             if file_path is None:
@@ -130,7 +163,7 @@ def main():
             text = report.get_text_from_image(image)
             os.remove(image)
             dir_name = os.path.join(
-                os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop'),  # указать папку
+                get_path()[2],  # os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop'),  # указать папку
                 "parser_tgc1",
                 str(month),
                 company
