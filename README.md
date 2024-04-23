@@ -4,7 +4,7 @@
 
 #### Установка зависимостей
 
-```poetry install```
+```pip install -r requirements.txt```
 
 #### Установка ПО
 
@@ -18,8 +18,10 @@
 1. словарь логин: пароль
 2. путь установки TESSERACT ORC
 3. путь установки POPPLER-WINDOWS
+4. путь к результатам
 
 #### Запуск
 
-- ```python main.py month```
+- ```python main.py month year```
 - month порядковый номер месяца (int)
+- year год 4 символа (int)
