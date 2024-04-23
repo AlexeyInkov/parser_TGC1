@@ -7,12 +7,17 @@ class Parser:
     url = "https://portal.tgc1.ru/"
 
     def auth(self, session: requests.Session, login, password):
-        session.post(
+        data = {
+            "login": login,
+            "password": password
+        }
+        x_csrftoken = session.cookies.get("x_csrftoken", default=None)
+        if x_csrftoken is not None:
+            data["x_csrftoken"] = x_csrftoken
+
+        auth = session.post(
             self.url + "auth/makeLogin",
-            data={
-                "login": login,
-                "password": password
-            })
+            data=data)
 
     def check_auth(self, session: requests.Session):
         check = session.get(self.url)
@@ -23,7 +28,7 @@ class Parser:
             return company.replace('"', "").replace(' ', "_").replace('__', "_")
         raise ConnectionError
 
-    def get_page_wiht_nodes(self, session: requests.Session):
+    def get_page_with_nodes(self, session: requests.Session):
         return session.post(self.url + "directorate/nodes", data={"onpage": 100}).text
 
     def get_nodes(self, html_page: str):
