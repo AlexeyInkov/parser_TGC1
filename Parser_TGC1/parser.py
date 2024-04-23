@@ -16,6 +16,7 @@ class Parser:
 
     def check_auth(self, session: requests.Session):
         check = session.get(self.url)
+        print(check.status_code)
         if check.status_code == 200:
             company = re.compile(r"(?:cabinet\">)(.+)(?:<)").search(check.text).group(1)
             print(f"Вы аутентифицированы как {company}")

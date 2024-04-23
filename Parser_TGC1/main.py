@@ -53,22 +53,20 @@ NODES = {
         2136760900,
         7673508700,
         7673508600
-        ], 
+    ],
     "Ing_5050": [
         2036925500,
         2220821800,
         8692695266,
         8692694297
-        ],
+    ],
     "PrJ97v_15": [
         4342,
         12093,
         15828,
         15924
-        ]
+    ]
 }
-
-
 
 try:
     script, month_str, year = argv
@@ -88,9 +86,9 @@ def get_accounts() -> Dict:
 
 
 def check_node(node):
-    with open("nodes.txt", "r", encoding="UTF-8") as file:
-        while True:  
-            line = file.readline()   
+    with open("Parser_TGC1/nodes.txt", "r", encoding="UTF-8") as file:
+        while True:
+            line = file.readline()
             if line and line.split("=")[0] == node:
                 return True
             return False
@@ -99,8 +97,8 @@ def check_node(node):
 def save_node(node, address):
     with open("nodes.txt", "a", encoding="UTF-8") as file:
         file.write("=".join((node, address, "\n")))
-    
-            
+
+
 def main():
     session = requests.session()
     parser = Parser()
@@ -112,7 +110,7 @@ def main():
         except ConnectionError():
             print("ошибка Аутентификации")
             continue
-        
+
         # nodes = NODES[login]
         nodes = parser.get_nodes(parser.get_page_wiht_nodes(session))  # TODO добавить пагинацию
         for node in nodes:
@@ -141,10 +139,10 @@ def main():
                 os.makedirs(dir_name)
             file_name, address = report.find_name(text)
             new_pdf = os.path.join(dir_name, file_name)
-            
+
             if not check_node(node):
                 save_node(node, address)
-            
+
             if os.path.exists(new_pdf):
                 new_pdf = f"{new_pdf[:-4]}_{str(random.randint(1000000, 10000000))}.pdf"
             os.rename(pdf, new_pdf)
