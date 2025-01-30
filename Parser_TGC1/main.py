@@ -163,7 +163,7 @@ def main():
             text = report.get_text_from_image(image)
             os.remove(image)
             dir_name = os.path.join(
-                get_path()[2],  # os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop'),  # указать папку
+                os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop'),  # get_path()[2] # указать папку
                 "parser_tgc1",
                 str(month),
                 company

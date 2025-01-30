@@ -46,8 +46,10 @@ class Parser:
             "encoding": "Windows1251"
         }
         response_file_path = session.post(self.url + "directorate/reports/downloadPost", data)
-        if response_file_path.status_code == 200 and response_file_path.text != '[]':
-            return "".join(response_file_path.text.split("\"")[3].split("\\"))  # убрал лишнее
+
+        if response_file_path.status_code == 200:
+            file_path = response_file_path.json()
+            return file_path.get('file', None)
 
     def download_zipfile(self, session: requests.Session, file_path: str, node: str, month: int, login):
         response = session.post(self.url + "files/tmp/" + file_path, stream=True)
